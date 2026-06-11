@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/gb-system-stress-watch/static/css/main.f855e6bc.css",
-    "main.js": "/gb-system-stress-watch/static/js/main.5fc917d0.js",
+    "main.js": "/gb-system-stress-watch/static/js/main.69614bea.js",
     "static/js/453.700efea4.chunk.js": "/gb-system-stress-watch/static/js/453.700efea4.chunk.js",
     "index.html": "/gb-system-stress-watch/index.html",
     "main.f855e6bc.css.map": "/gb-system-stress-watch/static/css/main.f855e6bc.css.map",
-    "main.5fc917d0.js.map": "/gb-system-stress-watch/static/js/main.5fc917d0.js.map",
+    "main.69614bea.js.map": "/gb-system-stress-watch/static/js/main.69614bea.js.map",
     "453.700efea4.chunk.js.map": "/gb-system-stress-watch/static/js/453.700efea4.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f855e6bc.css",
-    "static/js/main.5fc917d0.js"
+    "static/js/main.69614bea.js"
   ]
 }
