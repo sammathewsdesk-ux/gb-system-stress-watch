@@ -194,7 +194,8 @@ body {
   border-color: rgba(34, 197, 94, 0.7);
 }
 
-.control-panel {
+.control-panel,
+.exec-toolbar {
   grid-template-columns: minmax(260px, 380px) 1fr;
   align-items: end;
   margin-bottom: 16px;
@@ -202,6 +203,35 @@ body {
   border-radius: 20px;
   background: rgba(11, 25, 46, 0.78);
   padding: 18px;
+}
+
+.exec-toolbar {
+  display: grid;
+  gap: 16px;
+}
+
+.view-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(7, 18, 37, 0.72);
+  padding: 8px;
+}
+
+.view-tabs button {
+  border-color: transparent;
+  background: transparent;
+  color: #c3d5f4;
+  padding: 10px 15px;
+}
+
+.view-tabs button.active {
+  border-color: rgba(96, 165, 250, 0.7);
+  background: rgba(96, 165, 250, 0.18);
+  color: white;
 }
 
 label {
@@ -282,6 +312,10 @@ button:disabled {
   padding: 19px;
 }
 
+.executive-scoreboard {
+  grid-template-columns: 1.35fr 0.65fr 0.65fr 0.85fr;
+}
+
 .summary-card strong {
   display: block;
   margin-top: 10px;
@@ -307,8 +341,21 @@ button:disabled {
   grid-template-columns: 1.14fr 0.86fr;
 }
 
+.exec-stack {
+  display: grid;
+  gap: 16px;
+}
+
 .panel {
   padding: 24px;
+}
+
+.hero-panel {
+  min-height: 440px;
+}
+
+.compact-panel {
+  align-self: start;
 }
 
 .panel h2,
@@ -366,6 +413,16 @@ button:disabled {
   background: #0f2038;
   color: var(--text);
   text-align: left;
+}
+
+.compact-event {
+  margin-bottom: 10px;
+  padding: 14px;
+}
+
+.compact-event p,
+.compact-event em {
+  display: none;
 }
 
 .event-card.active {
@@ -553,6 +610,14 @@ button:disabled {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.forward-panel .future-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.copy-action {
+  margin-top: 16px;
+}
+
 .future-card strong {
   display: inline-block;
   border-radius: 999px;
@@ -564,7 +629,9 @@ button:disabled {
 @media (max-width: 1080px) {
   .executive-hero,
   .control-panel,
+  .exec-toolbar,
   .summary-grid,
+  .executive-scoreboard,
   .main-grid,
   .two-column,
   .top-story,

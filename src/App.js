@@ -327,6 +327,8 @@ function answerQuestion(question, selectedEvent, liveSummary, weather, horizonLa
 function App() {
   const [selectedEvent, setSelectedEvent] = useState(pastEvents[0]);
   const [selectedHorizon, setSelectedHorizon] = useState("30d");
+  const [activeView, setActiveView] = useState("brief");
+  const [copyState, setCopyState] = useState("idle");
   const [liveState, setLiveState] = useState({
     status: "idle",
     message: "Ready to refresh from NESO and weather APIs.",
@@ -346,6 +348,7 @@ function App() {
 
   const selectedWeatherLocation = weatherLocations[selectedEvent.weatherLocation] || weatherLocations.gb;
   const status = getStatus(selectedEvent.stressScore);
+  const briefingText = `GB System Stress Watch briefing: ${selectedEvent.title}. Status: ${status.label}. Stress score: ${selectedEvent.stressScore}/100. Primary driver: ${selectedEvent.primaryDriver}. Executive implication: ${selectedEvent.executiveImplication} Recommended action: ${selectedEvent.recommendedAction} Confidence: ${selectedEvent.confidence}.`;
 
   async function refreshLiveData() {
     setLiveState((current) => ({
@@ -413,24 +416,40 @@ function App() {
     );
   }
 
+  async function copyBriefing() {
+    if (!navigator.clipboard) {
+      setAnswer(briefingText);
+      setCopyState("copied");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(briefingText);
+      setCopyState("copied");
+      window.setTimeout(() => setCopyState("idle"), 2000);
+    } catch (error) {
+      setAnswer(`Copy failed: ${error.message}. ${briefingText}`);
+    }
+  }
+
   return (
     <div className="app-shell">
       <main className="app-container">
-        <section className="hero executive-hero">
+        <section className="hero executive-hero calm-hero">
           <div>
             <div className="eyebrow">NESO leadership prototype</div>
             <h1>GB System Stress Watch</h1>
             <p>
-              An AI-assisted open-data experience that helps turn NESO system, market and weather signals into faster
-              situational insight, executive briefings and forward-looking congestion watch indicators.
+              A leadership briefing view for turning NESO open data, market signals and weather context into concise
+              congestion insight and forward-looking watch indicators.
             </p>
             <div className="hero-actions">
               <button className="primary-button" onClick={refreshLiveData} disabled={liveState.status === "loading"}>
                 {liveState.status === "loading" ? "Refreshing..." : "Refresh NESO + weather"}
               </button>
-              <a href="https://sammathewsdesk-ux.github.io/gb-system-stress-watch/" className="secondary-link">
-                Live GitHub Pages demo
-              </a>
+              <button className="secondary-button" onClick={copyBriefing}>
+                {copyState === "copied" ? "Brief copied" : "Copy leadership brief"}
+              </button>
             </div>
           </div>
           <aside className={`status-card status-tone-${status.tone}`}>
@@ -444,7 +463,7 @@ function App() {
           </aside>
         </section>
 
-        <section className="control-panel">
+        <section className="exec-toolbar">
           <div>
             <label htmlFor="horizon">Analysis horizon</label>
             <select
@@ -467,7 +486,24 @@ function App() {
           </div>
         </section>
 
-        <section className="summary-grid executive-summary">
+        <nav className="view-tabs" aria-label="Executive views">
+          {[
+            ["brief", "Board brief"],
+            ["evidence", "Evidence"],
+            ["geography", "Geography"],
+            ["copilot", "Copilot"],
+          ].map(([id, label]) => (
+            <button
+              className={activeView === id ? "active" : ""}
+              key={id}
+              onClick={() => setActiveView(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+
+        <section className="summary-grid executive-summary executive-scoreboard">
           <article className="summary-card">
             <span>Primary driver</span>
             <strong>{selectedEvent.primaryDriver}</strong>
@@ -486,210 +522,215 @@ function App() {
           </article>
         </section>
 
-        <section className="two-column top-story">
-          <article className="panel narrative-panel">
-            <span className="section-kicker">Executive summary</span>
-            <h2>{selectedEvent.title}</h2>
-            <p className="lead-copy">{selectedEvent.summary}</p>
-            <div className="briefing-box">
-              <h3>Why this matters</h3>
-              <p>{selectedEvent.executiveImplication}</p>
-            </div>
-            <div className="briefing-box subtle-box">
-              <h3>Recommended leadership readout</h3>
-              <p>{selectedEvent.recommendedAction}</p>
-            </div>
-          </article>
-
-          <article className="panel evidence-panel">
-            <span className="section-kicker">Trust and provenance</span>
-            <h2>Evidence posture</h2>
-            <dl className="data-list">
-              <div>
-                <dt>NESO dataset</dt>
-                <dd>{liveState.datasetName || "Thermal constraint costs search"}</dd>
-              </div>
-              <div>
-                <dt>Resource</dt>
-                <dd>{liveState.resourceName || "Latest datastore-backed resource selected on refresh"}</dd>
-              </div>
-              <div>
-                <dt>Latest day cost</dt>
-                <dd>
-                  {liveState.liveSummary
-                    ? `${formatCurrency(liveState.liveSummary.latestTotalCost)} on ${
-                        liveState.liveSummary.latestDate
-                      }`
-                    : "Refresh to load"}
-                </dd>
-              </div>
-              <div>
-                <dt>Top constraint group</dt>
-                <dd>
-                  {liveState.liveSummary
-                    ? `${liveState.liveSummary.topConstraint} (${formatCurrency(
-                        liveState.liveSummary.topConstraintCost
-                      )})`
-                    : "Refresh to load"}
-                </dd>
-              </div>
-              <div>
-                <dt>Area weather</dt>
-                <dd>
-                  {liveState.weather
-                    ? `${liveState.weather.wind100m} km/h at 100m, ${liveState.weather.temperature} deg C`
-                    : `${selectedWeatherLocation.label}; refresh to load current context`}
-                </dd>
-              </div>
-            </dl>
-          </article>
-        </section>
-
-        <section className="main-grid">
-          <article className="panel">
-            <span className="section-kicker">Episode library</span>
-            <h2>Leadership-ready stress cases</h2>
-            <p className="muted">Select a case to update the narrative, evidence and recommended readout.</p>
-            {pastEvents.map((event) => (
-              <button
-                className={`event-card ${selectedEvent.id === event.id ? "active" : ""}`}
-                key={event.id}
-                onClick={() => setSelectedEvent(event)}
-              >
-                <span>{event.date}</span>
-                <div>
-                  <h3>{event.title}</h3>
-                  <strong>{event.signal}</strong>
+        {activeView === "brief" && (
+          <section className="exec-stack">
+            <section className="two-column top-story">
+              <article className="panel narrative-panel hero-panel">
+                <span className="section-kicker">Board brief</span>
+                <h2>{selectedEvent.title}</h2>
+                <p className="lead-copy">{selectedEvent.summary}</p>
+                <div className="briefing-box">
+                  <h3>Why this matters</h3>
+                  <p>{selectedEvent.executiveImplication}</p>
                 </div>
-                <em>{event.pattern}</em>
-                <p>{event.summary}</p>
-              </button>
-            ))}
-          </article>
-
-          <article className="panel">
-            <span className="section-kicker">AI explanation</span>
-            <h2>What the assistant would brief</h2>
-            <div className="explanation-card">
-              <span className="chip">{selectedEvent.pattern}</span>
-              <h3>{selectedEvent.primaryDriver}</h3>
-              <p>{selectedEvent.why}</p>
-              <div className="confidence">
-                <strong>Confidence:</strong> {selectedEvent.confidence}. {selectedEvent.confidenceNote}
-              </div>
-              <div className="area-note">
-                <strong>Area weather lens:</strong> {selectedEvent.constraintArea} using{" "}
-                {selectedWeatherLocation.label}.
-              </div>
-            </div>
-          </article>
-        </section>
-
-        <section className="panel">
-          <span className="section-kicker">Signal model</span>
-          <h2>Composite stress signal stack</h2>
-          <p className="muted">
-            The episode definition combines cost, curtailment, renewable output, demand, reserve/stability and weather
-            so NESO leaders see an integrated story rather than one isolated chart.
-          </p>
-          <div className="signal-grid">
-            {selectedEvent.signals.map((signal) => (
-              <article className={`signal-card level-${signal.level.toLowerCase()}`} key={signal.name}>
-                <span>{signal.name}</span>
-                <strong>{signal.value}</strong>
-                <em>{signal.level}</em>
-                <p>{signal.detail}</p>
+                <div className="briefing-box subtle-box">
+                  <h3>Recommended leadership readout</h3>
+                  <p>{selectedEvent.recommendedAction}</p>
+                </div>
               </article>
-            ))}
-          </div>
-        </section>
 
-        <section className="two-column">
-          <article className="panel">
-            <span className="section-kicker">Constraint geography</span>
-            <h2>Where the story happens</h2>
-            <p className="muted">
-              Converts NESO constraint groups into leadership-friendly areas, while retaining the codes analysts expect.
-            </p>
-            <div className="constraint-map">
-              {constraintAreas.map((area) => (
-                <article className="constraint-card" key={area.code}>
-                  <strong>{area.code}</strong>
-                  <h3>{area.name}</h3>
-                  <span>{area.region}</span>
-                  <p>{area.focus}</p>
-                  <small>Watch for: {area.watchSignal}</small>
-                </article>
-              ))}
-            </div>
-          </article>
+              <article className="panel compact-panel">
+                <span className="section-kicker">Selected case</span>
+                <h2>Choose stress case</h2>
+                <p className="muted">Use these to show that the framework distinguishes different stress patterns.</p>
+                {pastEvents.map((event) => (
+                  <button
+                    className={`event-card compact-event ${selectedEvent.id === event.id ? "active" : ""}`}
+                    key={event.id}
+                    onClick={() => setSelectedEvent(event)}
+                  >
+                    <span>{event.date}</span>
+                    <div>
+                      <h3>{event.title}</h3>
+                      <strong>{event.signal}</strong>
+                    </div>
+                  </button>
+                ))}
+              </article>
+            </section>
 
-          <article className="panel">
-            <span className="section-kicker">Episode timeline</span>
-            <h2>Before, during, after</h2>
-            <div className="timeline">
-              {selectedEvent.timeline.map((item) => (
-                <article className="timeline-item" key={item.stage}>
-                  <span>{item.stage}</span>
-                  <h3>{item.label}</h3>
-                  <p>{item.detail}</p>
-                </article>
-              ))}
-            </div>
-          </article>
-        </section>
+            <section className="panel forward-panel">
+              <span className="section-kicker">Forward watch</span>
+              <h2>From explanation to anticipation</h2>
+              <div className="future-grid">
+                {futureWatch.map((item) => (
+                  <article className="future-card" key={item.id}>
+                    <span>{item.period}</span>
+                    <h3>{item.title}</h3>
+                    <strong>{item.risk}</strong>
+                    <p>{item.summary}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </section>
+        )}
 
-        <section className="two-column">
-          <article className="panel copilot-panel">
-            <span className="section-kicker">Leadership copilot</span>
-            <h2>Ask the data</h2>
-            <p className="muted">
-              A briefing assistant pattern for questions NESO leaders are likely to ask in a review or steering meeting.
-            </p>
-            <textarea
-              value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Ask for a leadership summary, evidence, cost, weather, geography or next action..."
-            />
-            <button className="primary-button" onClick={() => handleAsk()}>
-              Generate briefing answer
-            </button>
-            <div className="prompt-row">
-              {[
-                "Give me the leadership summary",
-                "What evidence supports this?",
-                "What is the latest cost?",
-                "What should NESO do next?",
-              ].map((prompt) => (
-                <button key={prompt} onClick={() => handleAsk(prompt)}>
-                  {prompt}
-                </button>
-              ))}
-            </div>
-            <div className="answer-box">{answer || "Briefing-ready answers will appear here."}</div>
-          </article>
+        {activeView === "evidence" && (
+          <section className="exec-stack">
+            <section className="two-column">
+              <article className="panel evidence-panel">
+                <span className="section-kicker">Trust and provenance</span>
+                <h2>Evidence posture</h2>
+                <dl className="data-list">
+                  <div>
+                    <dt>NESO dataset</dt>
+                    <dd>{liveState.datasetName || "Thermal constraint costs search"}</dd>
+                  </div>
+                  <div>
+                    <dt>Resource</dt>
+                    <dd>{liveState.resourceName || "Latest datastore-backed resource selected on refresh"}</dd>
+                  </div>
+                  <div>
+                    <dt>Latest day cost</dt>
+                    <dd>
+                      {liveState.liveSummary
+                        ? `${formatCurrency(liveState.liveSummary.latestTotalCost)} on ${
+                            liveState.liveSummary.latestDate
+                          }`
+                        : "Refresh to load"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Top constraint group</dt>
+                    <dd>
+                      {liveState.liveSummary
+                        ? `${liveState.liveSummary.topConstraint} (${formatCurrency(
+                            liveState.liveSummary.topConstraintCost
+                          )})`
+                        : "Refresh to load"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Area weather</dt>
+                    <dd>
+                      {liveState.weather
+                        ? `${liveState.weather.wind100m} km/h at 100m, ${liveState.weather.temperature} deg C`
+                        : `${selectedWeatherLocation.label}; refresh to load current context`}
+                    </dd>
+                  </div>
+                </dl>
+              </article>
 
-          <article className="panel">
-            <span className="section-kicker">Forward watch</span>
-            <h2>From explanation to anticipation</h2>
-            <p className="muted">
-              Watch windows are not predictions. They are ranked periods where conditions resemble prior stress patterns
-              and deserve earlier situational awareness.
-            </p>
-            <div className="future-grid">
-              {futureWatch.map((item) => (
-                <article className="future-card" key={item.id}>
-                  <span>{item.period}</span>
-                  <h3>{item.title}</h3>
-                  <strong>{item.risk}</strong>
-                  <em>{item.signal}</em>
-                  <p>{item.summary}</p>
-                  <p className="muted">{item.why}</p>
-                </article>
-              ))}
-            </div>
-          </article>
-        </section>
+              <article className="panel">
+                <span className="section-kicker">AI explanation</span>
+                <h2>What the assistant would brief</h2>
+                <div className="explanation-card">
+                  <span className="chip">{selectedEvent.pattern}</span>
+                  <h3>{selectedEvent.primaryDriver}</h3>
+                  <p>{selectedEvent.why}</p>
+                  <div className="confidence">
+                    <strong>Confidence:</strong> {selectedEvent.confidence}. {selectedEvent.confidenceNote}
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <section className="panel">
+              <span className="section-kicker">Signal model</span>
+              <h2>Composite stress signal stack</h2>
+              <div className="signal-grid">
+                {selectedEvent.signals.map((signal) => (
+                  <article className={`signal-card level-${signal.level.toLowerCase()}`} key={signal.name}>
+                    <span>{signal.name}</span>
+                    <strong>{signal.value}</strong>
+                    <em>{signal.level}</em>
+                    <p>{signal.detail}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </section>
+        )}
+
+        {activeView === "geography" && (
+          <section className="two-column">
+            <article className="panel">
+              <span className="section-kicker">Constraint geography</span>
+              <h2>Where the story happens</h2>
+              <p className="muted">
+                Converts NESO constraint groups into leadership-friendly areas, while retaining the codes analysts expect.
+              </p>
+              <div className="constraint-map">
+                {constraintAreas.map((area) => (
+                  <article className="constraint-card" key={area.code}>
+                    <strong>{area.code}</strong>
+                    <h3>{area.name}</h3>
+                    <span>{area.region}</span>
+                    <p>{area.focus}</p>
+                    <small>Watch for: {area.watchSignal}</small>
+                  </article>
+                ))}
+              </div>
+            </article>
+
+            <article className="panel">
+              <span className="section-kicker">Episode timeline</span>
+              <h2>Before, during, after</h2>
+              <div className="timeline">
+                {selectedEvent.timeline.map((item) => (
+                  <article className="timeline-item" key={item.stage}>
+                    <span>{item.stage}</span>
+                    <h3>{item.label}</h3>
+                    <p>{item.detail}</p>
+                  </article>
+                ))}
+              </div>
+            </article>
+          </section>
+        )}
+
+        {activeView === "copilot" && (
+          <section className="two-column">
+            <article className="panel copilot-panel">
+              <span className="section-kicker">Leadership copilot</span>
+              <h2>Ask the data</h2>
+              <p className="muted">
+                A briefing assistant pattern for questions NESO leaders are likely to ask in a review or steering meeting.
+              </p>
+              <textarea
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+                placeholder="Ask for a leadership summary, evidence, cost, weather, geography or next action..."
+              />
+              <button className="primary-button" onClick={() => handleAsk()}>
+                Generate briefing answer
+              </button>
+              <div className="prompt-row">
+                {[
+                  "Give me the leadership summary",
+                  "What evidence supports this?",
+                  "What is the latest cost?",
+                  "What should NESO do next?",
+                ].map((prompt) => (
+                  <button key={prompt} onClick={() => handleAsk(prompt)}>
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+              <div className="answer-box">{answer || "Briefing-ready answers will appear here."}</div>
+            </article>
+
+            <article className="panel">
+              <span className="section-kicker">Copy-ready briefing</span>
+              <h2>One-minute readout</h2>
+              <div className="answer-box">{briefingText}</div>
+              <button className="primary-button copy-action" onClick={copyBriefing}>
+                {copyState === "copied" ? "Copied" : "Copy briefing text"}
+              </button>
+            </article>
+          </section>
+        )}
       </main>
     </div>
   );
