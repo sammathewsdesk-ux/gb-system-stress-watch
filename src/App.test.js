@@ -4,4 +4,6 @@ import App from './App';
 test('renders GB System Stress Watch homepage', () => {
   render(<App />);
   expect(screen.getByText(/GB System Stress Watch/i)).toBeInTheDocument();
+  expect(screen.getByText(/Refresh NESO \+ weather/i)).toBeInTheDocument();
+  expect(screen.getByText(/Ask the data/i)).toBeInTheDocument();
 });
