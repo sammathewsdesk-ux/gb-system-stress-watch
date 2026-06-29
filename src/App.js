@@ -242,7 +242,6 @@ function answerQuestion(question, selectedEvent, liveSummary, weather, horizonLa
 function App() {
   const [selectedEvent, setSelectedEvent] = useState(pastEvents[0]);
   const [selectedHorizon, setSelectedHorizon] = useState("30d");
-  const [analysisMode, setAnalysisMode] = useState("retrospective");
   const [liveState, setLiveState] = useState({
     status: "idle",
     message: "Ready to refresh from NESO and weather APIs.",
@@ -343,15 +342,6 @@ function App() {
         </section>
 
         <section className="control-panel">
-          <div>
-            <label htmlFor="mode">Analysis mode</label>
-            <select id="mode" value={analysisMode} onChange={(event) => setAnalysisMode(event.target.value)}>
-              <option value="retrospective">Retrospective explainer</option>
-              <option value="watch">Forward-looking watch list</option>
-              <option value="combined">Combined view</option>
-            </select>
-          </div>
-
           <div>
             <label htmlFor="horizon">Time horizon</label>
             <select
@@ -519,26 +509,24 @@ function App() {
           </article>
         </section>
 
-        {(analysisMode === "watch" || analysisMode === "combined") && (
-          <section className="panel">
-            <h2>Future watch</h2>
-            <p className="muted">
-              Periods worth monitoring based on forecast signals and historical analogues. These are planning signals,
-              not operational predictions.
-            </p>
-            <div className="future-grid">
-              {futureWatch.map((item) => (
-                <article className="future-card" key={item.id}>
-                  <span>{item.period}</span>
-                  <h3>{item.title}</h3>
-                  <strong>Risk: {item.risk}</strong>
-                  <p>{item.summary}</p>
-                  <p className="muted">{item.why}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
+        <section className="panel">
+          <h2>Future watch</h2>
+          <p className="muted">
+            Periods worth monitoring based on forecast signals and historical analogues. These are planning signals,
+            not operational predictions.
+          </p>
+          <div className="future-grid">
+            {futureWatch.map((item) => (
+              <article className="future-card" key={item.id}>
+                <span>{item.period}</span>
+                <h3>{item.title}</h3>
+                <strong>Risk: {item.risk}</strong>
+                <p>{item.summary}</p>
+                <p className="muted">{item.why}</p>
+              </article>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );

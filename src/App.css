@@ -62,7 +62,7 @@
 }
 
 .control-panel {
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: end;
   margin-bottom: 16px;
   border: 1px solid #23385c;
