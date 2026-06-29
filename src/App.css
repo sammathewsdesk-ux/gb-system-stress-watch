@@ -98,6 +98,11 @@ body {
   gap: 12px;
 }
 
+.secondary-button {
+  border-color: var(--border);
+  background: rgba(15, 32, 56, 0.92);
+}
+
 .secondary-link {
   color: #bfdbfe;
   font-weight: 800;
@@ -203,6 +208,49 @@ body {
   border-radius: 20px;
   background: rgba(11, 25, 46, 0.78);
   padding: 18px;
+}
+
+.focus-switch {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) 1.2fr;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  border: 1px solid rgba(96, 165, 250, 0.36);
+  border-radius: 22px;
+  background: rgba(11, 25, 46, 0.84);
+  padding: 18px;
+}
+
+.focus-switch h2 {
+  margin: 0;
+  font-size: clamp(22px, 3vw, 30px);
+  letter-spacing: -0.035em;
+}
+
+.focus-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.focus-buttons button {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  border-color: var(--border);
+  background: #0f2038;
+  text-align: left;
+}
+
+.focus-buttons button.active {
+  border-color: rgba(96, 165, 250, 0.9);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.72), rgba(15, 32, 56, 0.94));
+}
+
+.focus-buttons small {
+  color: #c3d5f4;
+  font-weight: 600;
 }
 
 .exec-toolbar {
@@ -628,6 +676,7 @@ button:disabled {
 
 @media (max-width: 1080px) {
   .executive-hero,
+  .focus-switch,
   .control-panel,
   .exec-toolbar,
   .summary-grid,
@@ -638,6 +687,10 @@ button:disabled {
   .signal-grid,
   .future-grid,
   .constraint-map {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-buttons {
     grid-template-columns: 1fr;
   }
 

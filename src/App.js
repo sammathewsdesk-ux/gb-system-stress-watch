@@ -326,6 +326,8 @@ function answerQuestion(question, selectedEvent, liveSummary, weather, horizonLa
 
 function App() {
   const [selectedEvent, setSelectedEvent] = useState(pastEvents[0]);
+  const [analysisFocus, setAnalysisFocus] = useState("past");
+  const [selectedFuture, setSelectedFuture] = useState(futureWatch[0]);
   const [selectedHorizon, setSelectedHorizon] = useState("30d");
   const [activeView, setActiveView] = useState("brief");
   const [copyState, setCopyState] = useState("idle");
@@ -347,8 +349,38 @@ function App() {
   );
 
   const selectedWeatherLocation = weatherLocations[selectedEvent.weatherLocation] || weatherLocations.gb;
+  const isFutureFocus = analysisFocus === "future";
   const status = getStatus(selectedEvent.stressScore);
-  const briefingText = `GB System Stress Watch briefing: ${selectedEvent.title}. Status: ${status.label}. Stress score: ${selectedEvent.stressScore}/100. Primary driver: ${selectedEvent.primaryDriver}. Executive implication: ${selectedEvent.executiveImplication} Recommended action: ${selectedEvent.recommendedAction} Confidence: ${selectedEvent.confidence}.`;
+  const futureStatus = {
+    label: selectedFuture.risk,
+    tone: selectedFuture.risk === "Elevated" ? "elevated" : "watch",
+    message: "Forward-looking watch signal",
+  };
+  const activeStatus = isFutureFocus ? futureStatus : status;
+  const activeScore = isFutureFocus ? (selectedFuture.risk === "Elevated" ? 72 : 61) : selectedEvent.stressScore;
+  const activeTitle = isFutureFocus ? selectedFuture.title : selectedEvent.title;
+  const activeSummary = isFutureFocus ? selectedFuture.summary : selectedEvent.summary;
+  const activeDriver = isFutureFocus ? selectedFuture.signal : selectedEvent.primaryDriver;
+  const activeConfidence = isFutureFocus ? "Analogue-based watch signal" : selectedEvent.confidence;
+  const activePrimaryMetric = isFutureFocus ? selectedFuture.period : selectedEvent.signal;
+  const activeSignals = isFutureFocus
+    ? [
+        { name: "Watch signal", value: selectedFuture.signal, level: selectedFuture.risk === "Elevated" ? "High" : "Medium", detail: selectedFuture.summary },
+        { name: "Weather dependency", value: "Forecast", level: "Medium", detail: "Needs current and forecast wind/temperature context" },
+        { name: "Demand sensitivity", value: "Watch", level: "Medium", detail: "Escalates if demand and reserve signals tighten" },
+        { name: "Historic analogue", value: "Required", level: "High", detail: "Compare with past congestion episodes before briefing as risk" },
+      ]
+    : selectedEvent.signals;
+  const activeTimeline = isFutureFocus
+    ? [
+        { stage: "Now", label: "Monitor conditions", detail: "Refresh NESO data and weather context for the selected horizon." },
+        { stage: "If aligned", label: "Escalate watch", detail: "Raise confidence when cost, weather, demand and reserve signals align." },
+        { stage: "Briefing use", label: "Prepare leadership narrative", detail: "Explain the watch as early situational awareness, not a prediction." },
+      ]
+    : selectedEvent.timeline;
+  const briefingText = isFutureFocus
+    ? `GB System Stress Watch future watch briefing: ${selectedFuture.title}. Status: ${selectedFuture.risk}. Period: ${selectedFuture.period}. Watch signal: ${selectedFuture.signal}. Summary: ${selectedFuture.summary} Interpretation: ${selectedFuture.why}`
+    : `GB System Stress Watch briefing: ${selectedEvent.title}. Status: ${status.label}. Stress score: ${selectedEvent.stressScore}/100. Primary driver: ${selectedEvent.primaryDriver}. Executive implication: ${selectedEvent.executiveImplication} Recommended action: ${selectedEvent.recommendedAction} Confidence: ${selectedEvent.confidence}.`;
 
   async function refreshLiveData() {
     setLiveState((current) => ({
@@ -452,15 +484,38 @@ function App() {
               </button>
             </div>
           </div>
-          <aside className={`status-card status-tone-${status.tone}`}>
-            <span>Current selected case</span>
-            <strong>{status.label}</strong>
-            <p>{status.message}</p>
-            <div className="score-ring" aria-label={`Stress score ${selectedEvent.stressScore} out of 100`}>
-              {selectedEvent.stressScore}
+          <aside className={`status-card status-tone-${activeStatus.tone}`}>
+            <span>{isFutureFocus ? "Selected watch window" : "Selected past event"}</span>
+            <strong>{activeStatus.label}</strong>
+            <p>{activeStatus.message}</p>
+            <div className="score-ring" aria-label={`Stress score ${activeScore} out of 100`}>
+              {activeScore}
               <small>/100</small>
             </div>
           </aside>
+        </section>
+
+        <section className="focus-switch" aria-label="Analysis focus">
+          <div>
+            <span className="section-kicker">Analysis focus</span>
+            <h2>Choose what you are briefing</h2>
+          </div>
+          <div className="focus-buttons">
+            <button
+              className={analysisFocus === "past" ? "active" : ""}
+              onClick={() => setAnalysisFocus("past")}
+            >
+              Past event explainer
+              <small>Explain what happened and why</small>
+            </button>
+            <button
+              className={analysisFocus === "future" ? "active" : ""}
+              onClick={() => setAnalysisFocus("future")}
+            >
+              Future watch
+              <small>Anticipate windows worth monitoring</small>
+            </button>
+          </div>
         </section>
 
         <section className="exec-toolbar">
@@ -506,15 +561,15 @@ function App() {
         <section className="summary-grid executive-summary executive-scoreboard">
           <article className="summary-card">
             <span>Primary driver</span>
-            <strong>{selectedEvent.primaryDriver}</strong>
+            <strong>{activeDriver}</strong>
           </article>
           <article className="summary-card">
-            <span>Top historical signal</span>
-            <strong>{selectedEvent.signal}</strong>
+            <span>{isFutureFocus ? "Watch period" : "Top historical signal"}</span>
+            <strong>{activePrimaryMetric}</strong>
           </article>
           <article className="summary-card">
-            <span>Leadership confidence</span>
-            <strong>{selectedEvent.confidence}</strong>
+            <span>{isFutureFocus ? "Evidence posture" : "Leadership confidence"}</span>
+            <strong>{activeConfidence}</strong>
           </article>
           <article className={`summary-card status-${liveState.status}`}>
             <span>Latest NESO refresh</span>
@@ -527,50 +582,81 @@ function App() {
             <section className="two-column top-story">
               <article className="panel narrative-panel hero-panel">
                 <span className="section-kicker">Board brief</span>
-                <h2>{selectedEvent.title}</h2>
-                <p className="lead-copy">{selectedEvent.summary}</p>
+                <h2>{activeTitle}</h2>
+                <p className="lead-copy">{activeSummary}</p>
                 <div className="briefing-box">
                   <h3>Why this matters</h3>
-                  <p>{selectedEvent.executiveImplication}</p>
+                  <p>{isFutureFocus ? selectedFuture.why : selectedEvent.executiveImplication}</p>
                 </div>
                 <div className="briefing-box subtle-box">
                   <h3>Recommended leadership readout</h3>
-                  <p>{selectedEvent.recommendedAction}</p>
+                  <p>
+                    {isFutureFocus
+                      ? "Use this as an early situational awareness signal. Escalate only when live NESO, weather, demand and margin evidence align."
+                      : selectedEvent.recommendedAction}
+                  </p>
                 </div>
               </article>
 
               <article className="panel compact-panel">
-                <span className="section-kicker">Selected case</span>
-                <h2>Choose stress case</h2>
-                <p className="muted">Use these to show that the framework distinguishes different stress patterns.</p>
-                {pastEvents.map((event) => (
-                  <button
-                    className={`event-card compact-event ${selectedEvent.id === event.id ? "active" : ""}`}
-                    key={event.id}
-                    onClick={() => setSelectedEvent(event)}
-                  >
-                    <span>{event.date}</span>
-                    <div>
-                      <h3>{event.title}</h3>
-                      <strong>{event.signal}</strong>
-                    </div>
-                  </button>
-                ))}
+                <span className="section-kicker">{isFutureFocus ? "Selected watch" : "Selected case"}</span>
+                <h2>{isFutureFocus ? "Choose watch window" : "Choose past stress case"}</h2>
+                <p className="muted">
+                  {isFutureFocus
+                    ? "Switch between anticipated risk windows."
+                    : "Switch between past events to explain what happened and why."}
+                </p>
+                {isFutureFocus
+                  ? futureWatch.map((item) => (
+                      <button
+                        className={`event-card compact-event ${selectedFuture.id === item.id ? "active" : ""}`}
+                        key={item.id}
+                        onClick={() => setSelectedFuture(item)}
+                      >
+                        <span>{item.period}</span>
+                        <div>
+                          <h3>{item.title}</h3>
+                          <strong>{item.risk}</strong>
+                        </div>
+                      </button>
+                    ))
+                  : pastEvents.map((event) => (
+                      <button
+                        className={`event-card compact-event ${selectedEvent.id === event.id ? "active" : ""}`}
+                        key={event.id}
+                        onClick={() => setSelectedEvent(event)}
+                      >
+                        <span>{event.date}</span>
+                        <div>
+                          <h3>{event.title}</h3>
+                          <strong>{event.signal}</strong>
+                        </div>
+                      </button>
+                    ))}
               </article>
             </section>
 
             <section className="panel forward-panel">
-              <span className="section-kicker">Forward watch</span>
-              <h2>From explanation to anticipation</h2>
+              <span className="section-kicker">{isFutureFocus ? "Historical analogues" : "Forward watch"}</span>
+              <h2>{isFutureFocus ? "Past cases that inform the watch" : "From explanation to anticipation"}</h2>
               <div className="future-grid">
-                {futureWatch.map((item) => (
-                  <article className="future-card" key={item.id}>
-                    <span>{item.period}</span>
-                    <h3>{item.title}</h3>
-                    <strong>{item.risk}</strong>
-                    <p>{item.summary}</p>
-                  </article>
-                ))}
+                {isFutureFocus
+                  ? pastEvents.map((event) => (
+                      <article className="future-card" key={event.id}>
+                        <span>{event.date}</span>
+                        <h3>{event.title}</h3>
+                        <strong>{event.pattern}</strong>
+                        <p>{event.summary}</p>
+                      </article>
+                    ))
+                  : futureWatch.map((item) => (
+                      <article className="future-card" key={item.id}>
+                        <span>{item.period}</span>
+                        <h3>{item.title}</h3>
+                        <strong>{item.risk}</strong>
+                        <p>{item.summary}</p>
+                      </article>
+                    ))}
               </div>
             </section>
           </section>
@@ -627,10 +713,13 @@ function App() {
                 <h2>What the assistant would brief</h2>
                 <div className="explanation-card">
                   <span className="chip">{selectedEvent.pattern}</span>
-                  <h3>{selectedEvent.primaryDriver}</h3>
-                  <p>{selectedEvent.why}</p>
+                  <h3>{activeDriver}</h3>
+                  <p>{isFutureFocus ? selectedFuture.why : selectedEvent.why}</p>
                   <div className="confidence">
-                    <strong>Confidence:</strong> {selectedEvent.confidence}. {selectedEvent.confidenceNote}
+                    <strong>Confidence:</strong>{" "}
+                    {isFutureFocus
+                      ? "Analogue-based. Requires live signal alignment before it should be treated as escalated risk."
+                      : `${selectedEvent.confidence}. ${selectedEvent.confidenceNote}`}
                   </div>
                 </div>
               </article>
@@ -640,7 +729,7 @@ function App() {
               <span className="section-kicker">Signal model</span>
               <h2>Composite stress signal stack</h2>
               <div className="signal-grid">
-                {selectedEvent.signals.map((signal) => (
+                {activeSignals.map((signal) => (
                   <article className={`signal-card level-${signal.level.toLowerCase()}`} key={signal.name}>
                     <span>{signal.name}</span>
                     <strong>{signal.value}</strong>
@@ -678,7 +767,7 @@ function App() {
               <span className="section-kicker">Episode timeline</span>
               <h2>Before, during, after</h2>
               <div className="timeline">
-                {selectedEvent.timeline.map((item) => (
+                {activeTimeline.map((item) => (
                   <article className="timeline-item" key={item.stage}>
                     <span>{item.stage}</span>
                     <h3>{item.label}</h3>
