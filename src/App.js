@@ -17,27 +17,76 @@ const weatherLocations = {
   southEast: { label: "South East constraint area", latitude: 51.5, longitude: 0.1 },
 };
 
+const constraintAreas = [
+  {
+    code: "SCOTEX",
+    name: "Scotland to England export boundary",
+    region: "North-South transfer",
+    focus: "Renewable export congestion and boundary transfer capability",
+    watchSignal: "High wind plus lower GB demand",
+  },
+  {
+    code: "SSE-SP",
+    name: "Scottish transmission interface",
+    region: "Scotland",
+    focus: "Internal Scottish constraints and renewable concentration",
+    watchSignal: "Strong area wind and high curtailment actions",
+  },
+  {
+    code: "SEIMP",
+    name: "South East import area",
+    region: "South East England",
+    focus: "Import limitations, voltage and demand-centre stress",
+    watchSignal: "High demand, low local flexibility or voltage support needs",
+  },
+  {
+    code: "ESTEX",
+    name: "East Anglia / East transfer interface",
+    region: "East England",
+    focus: "Network transfer and offshore/onshore generation interaction",
+    watchSignal: "Wind output plus boundary loading",
+  },
+  {
+    code: "SSHARN",
+    name: "Southern / sharnbrook-related constraint group",
+    region: "Central / South",
+    focus: "Transfer pressure into southern demand areas",
+    watchSignal: "Demand-led stress and constrained import patterns",
+  },
+];
+
 const pastEvents = [
   {
     id: 1,
     date: "8 January 2025",
-    title: "High thermal constraint episode",
+    title: "High renewable export constraint",
     signal: "\u00a33.2m",
     pattern: "Renewable-rich constraint episode",
     constraintArea: "Scotland to England boundary",
     weatherLocation: "scotland",
+    executiveImplication:
+      "Useful analogue for leadership briefings on how high renewable output can translate into material constraint cost when transfer capability and flexible demand are limited.",
     summary:
-      "Elevated constraint costs coincided with strong wind and relatively low demand.",
+      "Elevated constraint costs coincided with strong wind and relatively low demand, creating a credible renewable-rich congestion pattern.",
     why:
-      "This may indicate renewable output was high while network transfer capability or system flexibility was under pressure.",
+      "The most likely story is high northern renewable output meeting limited north-south transfer headroom, with lower demand reducing the system's ability to absorb generation locally.",
     confidence: "Medium-high",
+    confidenceNote: "Supported by aligned cost, wind and demand indicators; BM action and boundary-flow detail would raise confidence further.",
+    stressScore: 82,
+    primaryDriver: "High wind plus network transfer pressure",
+    recommendedAction: "Prioritise boundary-specific evidence, curtailment actions and flexibility options.",
     signals: [
-      { name: "Constraint cost", value: "\u00a33.2m", level: "High", detail: "Thermal boundary cost signal" },
+      { name: "Constraint cost", value: "\u00a33.2m", level: "High", detail: "Material thermal boundary cost signal" },
       { name: "Curtailing BMUs", value: "18", level: "High", detail: "Multiple units reducing output" },
       { name: "Wind output", value: "15.2 GW", level: "High", detail: "Renewable-rich operating state" },
-      { name: "Demand", value: "21.9 GW", level: "Low", detail: "Low demand increased constraint pressure" },
+      { name: "Demand", value: "21.9 GW", level: "Low", detail: "Low demand increased absorption challenge" },
       { name: "Reserve/stability", value: "Watch", level: "Medium", detail: "Needs cross-check with BM actions" },
       { name: "Weather", value: "Strong wind", level: "High", detail: "Area weather is material to the event" },
+    ],
+    timeline: [
+      { stage: "Before", label: "Renewable build-up", detail: "Area wind conditions strengthened while demand remained comparatively soft." },
+      { stage: "During", label: "Constraint pressure", detail: "Thermal constraint cost and curtailment indicators rose together." },
+      { stage: "After", label: "Operational learning", detail: "Best explained through boundary headroom, flexibility availability and BM action evidence." },
     ],
   },
   {
@@ -48,11 +97,17 @@ const pastEvents = [
     pattern: "Demand-led stress pattern",
     constraintArea: "England and Wales demand centres",
     weatherLocation: "englandWales",
+    executiveImplication:
+      "Demonstrates how the same watch framework can distinguish demand-led stress from renewable-curtailment-led congestion.",
     summary:
-      "Constraint costs rose during higher demand conditions with less evidence of wind-led stress.",
+      "Constraint costs rose during higher demand conditions with less evidence of a purely wind-led stress pattern.",
     why:
-      "This suggests a more demand-led system pressure event rather than a classic renewable-curtailment-led pattern.",
+      "The event appears more demand-led, with colder weather and tighter reserve or network conditions likely more important than renewable export congestion alone.",
     confidence: "Medium",
+    confidenceNote: "Cost and demand indicators align; reserve, margin and interconnector data would improve attribution.",
+    stressScore: 74,
+    primaryDriver: "Demand pressure and operational tightness",
+    recommendedAction: "Compare demand, reserve margin, interconnector flows and balancing actions in the selected window.",
     signals: [
       { name: "Constraint cost", value: "\u00a32.6m", level: "High", detail: "Significant daily system cost" },
       { name: "Curtailing BMUs", value: "9", level: "Medium", detail: "Less curtailment-led than Episode 1" },
@@ -60,6 +115,11 @@ const pastEvents = [
       { name: "Demand", value: "42.1 GW", level: "High", detail: "Demand-led pressure" },
       { name: "Reserve/stability", value: "Tight", level: "High", detail: "Check reserve and margin data" },
       { name: "Weather", value: "Cold", level: "Medium", detail: "Temperature may explain demand" },
+    ],
+    timeline: [
+      { stage: "Before", label: "Demand ramp", detail: "Demand increased as weather conditions supported higher consumption." },
+      { stage: "During", label: "System tightness", detail: "Constraint cost rose in a pattern less dominated by renewable curtailment." },
+      { stage: "After", label: "Operational learning", detail: "Best investigated through reserve, margin, interconnector and demand-response signals." },
     ],
   },
   {
@@ -70,11 +130,17 @@ const pastEvents = [
     pattern: "Mixed operational pressures",
     constraintArea: "South East import and voltage area",
     weatherLocation: "southEast",
+    executiveImplication:
+      "Shows why leadership reporting needs a multi-signal view rather than a single metric or one-cause explanation.",
     summary:
-      "Constraint, voltage and stability-related signals appear to have all contributed.",
+      "Constraint, voltage and stability-related signals appear to have contributed to a mixed stress episode.",
     why:
-      "This type of event often needs more than one signal to explain it properly and should be treated with caution.",
+      "No single driver dominates. The likely explanation combines network transfer pressure, local system needs and operational balancing actions.",
     confidence: "Low-medium",
+    confidenceNote: "The app should present this as a hypothesis until voltage, stability and BM evidence are joined.",
+    stressScore: 66,
+    primaryDriver: "Mixed network and stability pressure",
+    recommendedAction: "Flag as multi-factor and avoid over-attribution until supporting operational datasets are joined.",
     signals: [
       { name: "Constraint cost", value: "\u00a32.1m", level: "Medium", detail: "Material but not isolated" },
       { name: "Curtailing BMUs", value: "11", level: "Medium", detail: "Some renewable/network signal" },
@@ -82,6 +148,11 @@ const pastEvents = [
       { name: "Demand", value: "35.4 GW", level: "Medium", detail: "Not obviously peak-led" },
       { name: "Reserve/stability", value: "Watch", level: "High", detail: "Likely needs ancillary-service evidence" },
       { name: "Weather", value: "Mixed", level: "Medium", detail: "Weather signal is contextual" },
+    ],
+    timeline: [
+      { stage: "Before", label: "Mixed conditions", detail: "Demand, weather and network indicators pointed in different directions." },
+      { stage: "During", label: "Multi-signal stress", detail: "Cost, stability and balancing indicators likely overlapped." },
+      { stage: "After", label: "Operational learning", detail: "Best handled as a case for root-cause classification and confidence scoring." },
     ],
   },
 ];
@@ -91,23 +162,23 @@ const futureWatch = [
     id: 101,
     period: "October 2026",
     title: "North-South boundary watch",
-    risk: "Moderate",
-    signal: "Forecast risk window",
+    risk: "Elevated",
+    signal: "Renewable-rich analogue",
     summary:
-      "Future period worth watching based on forecast cost signals and historical analogues.",
+      "Period worth monitoring when high wind, lower demand and north-south transfer pressure align.",
     why:
-      "This resembles historical renewable-rich constraint conditions, but should be treated as a watch signal rather than a prediction.",
+      "Treat as a planning signal: it resembles historic renewable-rich constraint conditions but is not an operational prediction.",
   },
   {
     id: 102,
     period: "December 2026",
     title: "Winter peak-demand watch",
-    risk: "Moderate-high",
-    signal: "Demand-led watch",
+    risk: "Watch",
+    signal: "Demand-led analogue",
     summary:
-      "Higher seasonal demand may increase the chance of system stress in certain periods.",
+      "Higher seasonal demand may increase the chance of stress in certain periods, especially if reserve or interconnector signals tighten.",
     why:
-      "This is useful as a planning signal only. It does not predict a specific operational event.",
+      "Useful for leadership situational awareness and pre-briefing; needs forecast margin and weather context before escalation.",
   },
 ];
 
@@ -125,6 +196,12 @@ function formatDateTime(value) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function getStatus(score) {
+  if (score >= 80) return { label: "Elevated", tone: "elevated", message: "Leadership attention recommended" };
+  if (score >= 65) return { label: "Watch", tone: "watch", message: "Monitor signals and prepare narrative" };
+  return { label: "Normal", tone: "normal", message: "No major stress signal indicated" };
 }
 
 function buildSqlUrl(resourceId, selectedHorizon) {
@@ -199,44 +276,52 @@ function summarizeWeather(data) {
   };
 }
 
-function answerQuestion(question, selectedEvent, liveSummary, weather, horizonLabel) {
+function answerQuestion(question, selectedEvent, liveSummary, weather, horizonLabel, status) {
   const normalized = question.toLowerCase();
 
   if (!question.trim()) {
-    return "Ask about the selected event, constraint costs, weather, time horizon, confidence, or future watch signals.";
+    return "Ask for a leadership summary, evidence, cost, weather, confidence, geography or recommended next action.";
+  }
+
+  if (normalized.includes("leadership") || normalized.includes("brief") || normalized.includes("summary")) {
+    return `Leadership brief: ${selectedEvent.title} is a ${status.label.toLowerCase()} stress case with a ${selectedEvent.stressScore}/100 score. The primary driver is ${selectedEvent.primaryDriver}. The executive implication is: ${selectedEvent.executiveImplication}`;
+  }
+
+  if (normalized.includes("action") || normalized.includes("recommend")) {
+    return `Recommended next action: ${selectedEvent.recommendedAction} For NESO leadership, position this as a confidence-scored explanation, not a definitive operational root cause until the remaining evidence is joined.`;
+  }
+
+  if (normalized.includes("evidence") || normalized.includes("confidence")) {
+    return `Evidence confidence is ${selectedEvent.confidence}. ${selectedEvent.confidenceNote} The app is intentionally transparent: it separates observed indicators from interpretation and shows what evidence is still needed.`;
   }
 
   if (normalized.includes("weather") || normalized.includes("wind") || normalized.includes("temperature")) {
     if (!weather) {
-      return `For ${selectedEvent.title}, weather is expected to be important because the relevant area is ${selectedEvent.constraintArea}. Refresh live data to pull UK and area weather context.`;
+      return `Weather is important for ${selectedEvent.constraintArea}. Refresh live data to pull current area-specific wind and temperature context alongside the NESO cost signal.`;
     }
-    return `Weather context for ${selectedEvent.constraintArea}: around ${weather.wind100m} km/h wind at 100m, ${weather.wind10m} km/h wind at 10m, and ${weather.temperature} deg C near ${weather.time}. This helps test whether the event is renewable-led, demand-led, or mixed.`;
+    return `Weather context for ${selectedEvent.constraintArea}: ${weather.wind100m} km/h wind at 100m, ${weather.wind10m} km/h at 10m and ${weather.temperature} deg C near ${weather.time}. This helps distinguish renewable-led, demand-led and mixed episodes.`;
   }
 
   if (normalized.includes("cost") || normalized.includes("constraint")) {
     if (!liveSummary) {
-      return `The selected event's historical signal is ${selectedEvent.signal}. Refresh live NESO data to compare it with the latest thermal constraint cost records.`;
+      return `The selected historical event signal is ${selectedEvent.signal}. Refresh live NESO data to compare it with the latest thermal constraint cost records and top constraint group.`;
     }
     return `Latest NESO thermal constraint sample in ${horizonLabel}: ${formatCurrency(
       liveSummary.latestTotalCost
-    )} on ${liveSummary.latestDate}. The largest constraint group in that latest day is ${
+    )} on ${liveSummary.latestDate}. The largest latest-day constraint group is ${
       liveSummary.topConstraint
     } at ${formatCurrency(liveSummary.topConstraintCost)}.`;
   }
 
-  if (normalized.includes("why") || normalized.includes("explain")) {
-    return `${selectedEvent.title}: ${selectedEvent.why} Confidence is ${selectedEvent.confidence}. The richer signal view combines cost, curtailment, wind, demand, reserve/stability and weather rather than relying on one metric.`;
+  if (normalized.includes("map") || normalized.includes("area") || normalized.includes("where")) {
+    return `The selected case is anchored on ${selectedEvent.constraintArea}. The geography panel translates constraint groups into leadership-friendly operating areas so the story is not just a chart or acronym.`;
   }
 
   if (normalized.includes("future") || normalized.includes("watch") || normalized.includes("forecast")) {
-    return "The future watch view should treat risk windows as planning signals, not predictions. The next build should combine NESO live data, weather forecasts, historical analogues, margin/reserve signals and boundary-specific congestion patterns.";
+    return "Future watch should be positioned as early situational awareness: combine NESO cost history, weather forecasts, demand, reserve/margin, BM actions and historical analogues to rank watch windows before they become leadership issues.";
   }
 
-  if (normalized.includes("horizon") || normalized.includes("period")) {
-    return `The current analysis horizon is ${horizonLabel}. The refresh flow uses this horizon to query recent NESO records and should later drive charts, episode detection and watch-list scoring.`;
-  }
-
-  return `For ${selectedEvent.title}, the strongest current explanation is: ${selectedEvent.summary} Ask a more specific question about cost, weather, horizon, confidence, or future watch risk.`;
+  return `Executive readout: ${selectedEvent.summary} Primary driver: ${selectedEvent.primaryDriver}. Confidence: ${selectedEvent.confidence}. Suggested next action: ${selectedEvent.recommendedAction}`;
 }
 
 function App() {
@@ -260,6 +345,7 @@ function App() {
   );
 
   const selectedWeatherLocation = weatherLocations[selectedEvent.weatherLocation] || weatherLocations.gb;
+  const status = getStatus(selectedEvent.stressScore);
 
   async function refreshLiveData() {
     setLiveState((current) => ({
@@ -321,7 +407,8 @@ function App() {
         selectedEvent,
         liveState.liveSummary,
         liveState.weather,
-        horizonLabel
+        horizonLabel,
+        status
       )
     );
   }
@@ -329,21 +416,37 @@ function App() {
   return (
     <div className="app-shell">
       <main className="app-container">
-        <section className="hero">
-          <div className="eyebrow">GB electricity system analysis</div>
-          <h1>GB System Stress Watch</h1>
-          <p>
-            Explaining past congestion episodes, refreshing NESO open data on demand, and building a forward-looking
-            watch list for system stress.
-          </p>
-          <a href="https://sammathewsdesk-ux.github.io/gb-system-stress-watch/" className="live-link">
-            Live app
-          </a>
+        <section className="hero executive-hero">
+          <div>
+            <div className="eyebrow">NESO leadership prototype</div>
+            <h1>GB System Stress Watch</h1>
+            <p>
+              An AI-assisted open-data experience that helps turn NESO system, market and weather signals into faster
+              situational insight, executive briefings and forward-looking congestion watch indicators.
+            </p>
+            <div className="hero-actions">
+              <button className="primary-button" onClick={refreshLiveData} disabled={liveState.status === "loading"}>
+                {liveState.status === "loading" ? "Refreshing..." : "Refresh NESO + weather"}
+              </button>
+              <a href="https://sammathewsdesk-ux.github.io/gb-system-stress-watch/" className="secondary-link">
+                Live GitHub Pages demo
+              </a>
+            </div>
+          </div>
+          <aside className={`status-card status-tone-${status.tone}`}>
+            <span>Current selected case</span>
+            <strong>{status.label}</strong>
+            <p>{status.message}</p>
+            <div className="score-ring" aria-label={`Stress score ${selectedEvent.stressScore} out of 100`}>
+              {selectedEvent.stressScore}
+              <small>/100</small>
+            </div>
+          </aside>
         </section>
 
         <section className="control-panel">
           <div>
-            <label htmlFor="horizon">Time horizon</label>
+            <label htmlFor="horizon">Analysis horizon</label>
             <select
               id="horizon"
               value={selectedHorizon}
@@ -357,90 +460,50 @@ function App() {
             </select>
           </div>
 
-          <button className="primary-button" onClick={refreshLiveData} disabled={liveState.status === "loading"}>
-            {liveState.status === "loading" ? "Refreshing..." : "Refresh NESO + weather"}
-          </button>
-        </section>
-
-        <section className="summary-grid">
-          <article className="summary-card">
-            <span>Detected past stress events</span>
-            <strong>{pastEvents.length}</strong>
-          </article>
-          <article className="summary-card">
-            <span>Top historical signal</span>
-            <strong>{"\u00a33.2m"}</strong>
-          </article>
-          <article className="summary-card">
-            <span>Selected horizon</span>
-            <strong>{horizonLabel}</strong>
-          </article>
-          <article className={`summary-card status-${liveState.status}`}>
-            <span>Live data status</span>
-            <strong>{liveState.status === "ready" ? "Refreshed" : liveState.status}</strong>
-          </article>
-        </section>
-
-        <section className="main-grid">
-          <article className="panel">
-            <h2>Past event explainer</h2>
-            <p className="muted">Select an event to inspect the combined congestion and weather signals.</p>
-            {pastEvents.map((event) => (
-              <button
-                className={`event-card ${selectedEvent.id === event.id ? "active" : ""}`}
-                key={event.id}
-                onClick={() => setSelectedEvent(event)}
-              >
-                <span>{event.date}</span>
-                <div>
-                  <h3>{event.title}</h3>
-                  <strong>{event.signal}</strong>
-                </div>
-                <em>{event.pattern}</em>
-                <p>{event.summary}</p>
-              </button>
-            ))}
-          </article>
-
-          <article className="panel">
-            <h2>Agent explanation</h2>
-            <p className="muted">Designed for both expert drill-down and executive narrative.</p>
-            <div className="explanation-card">
-              <span className="chip">{selectedEvent.pattern}</span>
-              <h3>{selectedEvent.title}</h3>
-              <p>{selectedEvent.why}</p>
-              <div className="confidence">
-                <strong>Confidence:</strong> {selectedEvent.confidence}
-              </div>
-              <div className="area-note">
-                <strong>Area weather lens:</strong> {selectedEvent.constraintArea} using{" "}
-                {selectedWeatherLocation.label}.
-              </div>
-            </div>
-          </article>
-        </section>
-
-        <section className="panel">
-          <h2>Richer stress signal stack</h2>
-          <p className="muted">
-            The episode definition now covers cost, curtailment, wind, demand, reserve/stability and weather signals.
-          </p>
-          <div className="signal-grid">
-            {selectedEvent.signals.map((signal) => (
-              <article className={`signal-card level-${signal.level.toLowerCase()}`} key={signal.name}>
-                <span>{signal.name}</span>
-                <strong>{signal.value}</strong>
-                <em>{signal.level}</em>
-                <p>{signal.detail}</p>
-              </article>
-            ))}
+          <div className="source-strip">
+            <span>Source posture</span>
+            <strong>{liveState.status === "ready" ? "Live data refreshed" : "Open-data scaffold"}</strong>
+            <small>{liveState.message}</small>
           </div>
         </section>
 
-        <section className="two-column">
-          <article className="panel">
-            <h2>Live data refresh</h2>
-            <p className="muted">{liveState.message}</p>
+        <section className="summary-grid executive-summary">
+          <article className="summary-card">
+            <span>Primary driver</span>
+            <strong>{selectedEvent.primaryDriver}</strong>
+          </article>
+          <article className="summary-card">
+            <span>Top historical signal</span>
+            <strong>{selectedEvent.signal}</strong>
+          </article>
+          <article className="summary-card">
+            <span>Leadership confidence</span>
+            <strong>{selectedEvent.confidence}</strong>
+          </article>
+          <article className={`summary-card status-${liveState.status}`}>
+            <span>Latest NESO refresh</span>
+            <strong>{formatDateTime(liveState.lastUpdated)}</strong>
+          </article>
+        </section>
+
+        <section className="two-column top-story">
+          <article className="panel narrative-panel">
+            <span className="section-kicker">Executive summary</span>
+            <h2>{selectedEvent.title}</h2>
+            <p className="lead-copy">{selectedEvent.summary}</p>
+            <div className="briefing-box">
+              <h3>Why this matters</h3>
+              <p>{selectedEvent.executiveImplication}</p>
+            </div>
+            <div className="briefing-box subtle-box">
+              <h3>Recommended leadership readout</h3>
+              <p>{selectedEvent.recommendedAction}</p>
+            </div>
+          </article>
+
+          <article className="panel evidence-panel">
+            <span className="section-kicker">Trust and provenance</span>
+            <h2>Evidence posture</h2>
             <dl className="data-list">
               <div>
                 <dt>NESO dataset</dt>
@@ -449,10 +512,6 @@ function App() {
               <div>
                 <dt>Resource</dt>
                 <dd>{liveState.resourceName || "Latest datastore-backed resource selected on refresh"}</dd>
-              </div>
-              <div>
-                <dt>Last refreshed</dt>
-                <dd>{formatDateTime(liveState.lastUpdated)}</dd>
               </div>
               <div>
                 <dt>Latest day cost</dt>
@@ -479,53 +538,157 @@ function App() {
                 <dd>
                   {liveState.weather
                     ? `${liveState.weather.wind100m} km/h at 100m, ${liveState.weather.temperature} deg C`
-                    : "Refresh to load"}
+                    : `${selectedWeatherLocation.label}; refresh to load current context`}
                 </dd>
               </div>
             </dl>
           </article>
+        </section>
+
+        <section className="main-grid">
+          <article className="panel">
+            <span className="section-kicker">Episode library</span>
+            <h2>Leadership-ready stress cases</h2>
+            <p className="muted">Select a case to update the narrative, evidence and recommended readout.</p>
+            {pastEvents.map((event) => (
+              <button
+                className={`event-card ${selectedEvent.id === event.id ? "active" : ""}`}
+                key={event.id}
+                onClick={() => setSelectedEvent(event)}
+              >
+                <span>{event.date}</span>
+                <div>
+                  <h3>{event.title}</h3>
+                  <strong>{event.signal}</strong>
+                </div>
+                <em>{event.pattern}</em>
+                <p>{event.summary}</p>
+              </button>
+            ))}
+          </article>
 
           <article className="panel">
-            <h2>Ask the data</h2>
-            <p className="muted">First copilot-style layer: grounded answers from the selected event and refreshed data.</p>
-            <textarea
-              value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Ask: what drove this event, what does weather show, or what is the latest cost?"
-            />
-            <button className="primary-button" onClick={() => handleAsk()}>
-              Ask
-            </button>
-            <div className="prompt-row">
-              {["Explain this event", "What is the latest cost?", "What does weather show?", "How does horizon matter?"].map(
-                (prompt) => (
-                  <button key={prompt} onClick={() => handleAsk(prompt)}>
-                    {prompt}
-                  </button>
-                )
-              )}
+            <span className="section-kicker">AI explanation</span>
+            <h2>What the assistant would brief</h2>
+            <div className="explanation-card">
+              <span className="chip">{selectedEvent.pattern}</span>
+              <h3>{selectedEvent.primaryDriver}</h3>
+              <p>{selectedEvent.why}</p>
+              <div className="confidence">
+                <strong>Confidence:</strong> {selectedEvent.confidence}. {selectedEvent.confidenceNote}
+              </div>
+              <div className="area-note">
+                <strong>Area weather lens:</strong> {selectedEvent.constraintArea} using{" "}
+                {selectedWeatherLocation.label}.
+              </div>
             </div>
-            <div className="answer-box">{answer || "Answers will appear here."}</div>
           </article>
         </section>
 
         <section className="panel">
-          <h2>Future watch</h2>
+          <span className="section-kicker">Signal model</span>
+          <h2>Composite stress signal stack</h2>
           <p className="muted">
-            Periods worth monitoring based on forecast signals and historical analogues. These are planning signals,
-            not operational predictions.
+            The episode definition combines cost, curtailment, renewable output, demand, reserve/stability and weather
+            so NESO leaders see an integrated story rather than one isolated chart.
           </p>
-          <div className="future-grid">
-            {futureWatch.map((item) => (
-              <article className="future-card" key={item.id}>
-                <span>{item.period}</span>
-                <h3>{item.title}</h3>
-                <strong>Risk: {item.risk}</strong>
-                <p>{item.summary}</p>
-                <p className="muted">{item.why}</p>
+          <div className="signal-grid">
+            {selectedEvent.signals.map((signal) => (
+              <article className={`signal-card level-${signal.level.toLowerCase()}`} key={signal.name}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+                <em>{signal.level}</em>
+                <p>{signal.detail}</p>
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="two-column">
+          <article className="panel">
+            <span className="section-kicker">Constraint geography</span>
+            <h2>Where the story happens</h2>
+            <p className="muted">
+              Converts NESO constraint groups into leadership-friendly areas, while retaining the codes analysts expect.
+            </p>
+            <div className="constraint-map">
+              {constraintAreas.map((area) => (
+                <article className="constraint-card" key={area.code}>
+                  <strong>{area.code}</strong>
+                  <h3>{area.name}</h3>
+                  <span>{area.region}</span>
+                  <p>{area.focus}</p>
+                  <small>Watch for: {area.watchSignal}</small>
+                </article>
+              ))}
+            </div>
+          </article>
+
+          <article className="panel">
+            <span className="section-kicker">Episode timeline</span>
+            <h2>Before, during, after</h2>
+            <div className="timeline">
+              {selectedEvent.timeline.map((item) => (
+                <article className="timeline-item" key={item.stage}>
+                  <span>{item.stage}</span>
+                  <h3>{item.label}</h3>
+                  <p>{item.detail}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </section>
+
+        <section className="two-column">
+          <article className="panel copilot-panel">
+            <span className="section-kicker">Leadership copilot</span>
+            <h2>Ask the data</h2>
+            <p className="muted">
+              A briefing assistant pattern for questions NESO leaders are likely to ask in a review or steering meeting.
+            </p>
+            <textarea
+              value={question}
+              onChange={(event) => setQuestion(event.target.value)}
+              placeholder="Ask for a leadership summary, evidence, cost, weather, geography or next action..."
+            />
+            <button className="primary-button" onClick={() => handleAsk()}>
+              Generate briefing answer
+            </button>
+            <div className="prompt-row">
+              {[
+                "Give me the leadership summary",
+                "What evidence supports this?",
+                "What is the latest cost?",
+                "What should NESO do next?",
+              ].map((prompt) => (
+                <button key={prompt} onClick={() => handleAsk(prompt)}>
+                  {prompt}
+                </button>
+              ))}
+            </div>
+            <div className="answer-box">{answer || "Briefing-ready answers will appear here."}</div>
+          </article>
+
+          <article className="panel">
+            <span className="section-kicker">Forward watch</span>
+            <h2>From explanation to anticipation</h2>
+            <p className="muted">
+              Watch windows are not predictions. They are ranked periods where conditions resemble prior stress patterns
+              and deserve earlier situational awareness.
+            </p>
+            <div className="future-grid">
+              {futureWatch.map((item) => (
+                <article className="future-card" key={item.id}>
+                  <span>{item.period}</span>
+                  <h3>{item.title}</h3>
+                  <strong>{item.risk}</strong>
+                  <em>{item.signal}</em>
+                  <p>{item.summary}</p>
+                  <p className="muted">{item.why}</p>
+                </article>
+              ))}
+            </div>
+          </article>
         </section>
       </main>
     </div>
